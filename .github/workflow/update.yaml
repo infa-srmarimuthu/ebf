@@ -1,0 +1,52 @@
+name: "Auto EBF Workflow"
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:        
+  check_pr_labels:
+    if: github.event_name == 'push'
+    runs-on: self-hosted
+    name: EBF Label check
+    outputs:
+      status: ${{ steps.check_pr_labels.outputs.result }}
+      labels: ${{ steps.check_pr_labels.outputs.labels }}
+      services: ${{ steps.check_pr_labels.outputs.services }}
+      ft-branch: ${{ steps.check_pr_labels.outputs.ft-branch }}
+      ft-branch-present: ${{ steps.checkft.ft-branch-present}}
+    steps:
+    - name: Check
+      id: check_pr_labels
+      uses: Srirammkm/check-labels@v0.5
+      with:
+        github-token: ${{ secrets.TOKEN }}
+        labels: '["auto-ebf"]'
+      continue-on-error: true
+    - name: Check Feature Toggle
+      id: checkft
+      shell: bash
+      run: |
+        if [ "${{ steps.check_pr_labels.outputs.ft-branch }}" == "" ]; then
+          echo "ft-branch-present=false" >> $GITHUB_OUTPUT
+        else
+          echo "ft-branch-present=true" >> $GITHUB_OUTPUT
+        fi
+    - name: Check selecte services
+      id: check-selected-services
+      shell: bash
+      run: |
+        if [ "${{ steps.check_pr_labels.outputs.services }}" == "" ]; then
+          echo "selected-services-present=false" >> $GITHUB_ENV
+        else
+          echo "selected-services-present=true" >> $GITHUB_ENV
+        fi
+
+    - name: All Labels
+      run: |
+        echo "${{ steps.check_pr_labels.outputs.labels }}"
+        echo "${{ steps.check_pr_labels.outputs.services }}"
+        echo "${{ steps.check_pr_labels.outputs.ft-branch }}"
+        echo "${{ env.ft-branch-present }}"
+        echo "${{ env.selected-services-present }}"
