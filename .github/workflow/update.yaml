@@ -48,5 +48,5 @@ jobs:
         echo "${{ steps.check_pr_labels.outputs.labels }}"
         echo "${{ steps.check_pr_labels.outputs.services }}"
         echo "${{ steps.check_pr_labels.outputs.ft-branch }}"
-        echo "${{ env.ft-branch-present }}"
+        echo "${{ steps.checkft.ft-branch-present}}"
         echo "${{ env.selected-services-present }}"
